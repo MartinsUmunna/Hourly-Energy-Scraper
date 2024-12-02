@@ -103,7 +103,7 @@ def load_to_database(df):
         cursor = db_connection.cursor()
         
         # Prepare the insert statement
-        sql = "INSERT INTO combined_hourly_energy_generated_mwh (Date, Hour, Gencos, EnergyGeneratedMWh) VALUES (%s, %s, %s, %s)"
+        sql = "INSERT INTO combined_data (Date, Hour, Gencos, EnergyGeneratedMWh) VALUES (%s, %s, %s, %s)"
         
         # Create a list of tuples from the dataframe records
         data_tuples = df.to_records(index=False).tolist()
