@@ -26,14 +26,17 @@ jobs:
 
     - name: Install dependencies
       run: |
+        source venv/bin/activate
         pip install -r requirements.txt
-        pip install pymysql
         pip install playwright
 
-    - name: Install Playwright browsers
+    - name: Set Playwright cache directory and install browsers
       run: |
+        export PLAYWRIGHT_BROWSERS_PATH=0
         source venv/bin/activate
-        playwright install
+        playwright install chromium
 
     - name: Run Scraper
-      run: python scraper.py
+      run: |
+        source venv/bin/activate
+        python scraper.py
