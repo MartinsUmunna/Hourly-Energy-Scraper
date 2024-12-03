@@ -27,6 +27,7 @@ jobs:
       run: |
         pip install -r requirements.txt
         pip install pymysql
+        pip list
 
     - name: Run Scraper
       run: python scraper.py
