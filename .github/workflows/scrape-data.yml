@@ -27,5 +27,8 @@ jobs:
           python -m playwright install
           pip install pytest-playwright
 
+      - name: Debug Python Packages
+        run: pip list
+
       - name: Run Scraper
         run: python scraper.py
