@@ -25,10 +25,9 @@ jobs:
           pip install -r requirements.txt
           python -m playwright install-deps
           python -m playwright install
-          pip install pytest-playwright
 
-      - name: Debug Python Packages
-        run: pip list
+      - name: Verify Installation of pymysql
+        run: pip show pymysql
 
       - name: Run Scraper
         run: python scraper.py
