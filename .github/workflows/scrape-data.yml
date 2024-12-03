@@ -19,16 +19,22 @@ jobs:
         with:
           python-version: '3.9'
 
-      - name: Install dependencies
+      - name: Set up Virtual Environment
+        run: python -m venv .venv
+
+      - name: Activate Virtual Environment and Install Dependencies
         run: |
+          source .venv/bin/activate
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install pymysql==1.0.3
 
-      - name: Install pymysql explicitly
-        run: pip install pymysql==1.0.3
-
-      - name: Verify Installation of pymysql
-        run: pip show pymysql
+      - name: Verify pymysql Installation
+        run: |
+          source .venv/bin/activate
+          pip show pymysql
 
       - name: Run Scraper
-        run: python scraper.py
+        run: |
+          source .venv/bin/activate
+          python scraper.py
