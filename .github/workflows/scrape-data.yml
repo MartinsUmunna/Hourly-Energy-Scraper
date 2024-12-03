@@ -31,7 +31,9 @@ jobs:
         pip install playwright
 
     - name: Install Playwright browsers
-      run: playwright install
+      run: |
+        source venv/bin/activate
+        playwright install
 
     - name: Run Scraper
       run: python scraper.py
