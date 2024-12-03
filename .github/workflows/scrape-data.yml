@@ -28,7 +28,10 @@ jobs:
       run: |
         pip install -r requirements.txt
         pip install pymysql
-        pip list
+        pip install playwright
+
+    - name: Install Playwright browsers
+      run: playwright install
 
     - name: Run Scraper
       run: python scraper.py
