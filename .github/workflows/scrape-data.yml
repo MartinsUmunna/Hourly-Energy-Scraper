@@ -2,8 +2,7 @@ name: Scrape Yesterday's Energy Data
 
 on:
   schedule:
-    # Run daily at 1:00 AM UTC
-    - cron: '0 1 * * *'
+    - cron: '0 1 * * *'  # Run daily at 1:00 AM UTC
   workflow_dispatch:  # Allow manual trigger
 
 jobs:
@@ -11,30 +10,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v3
-        with:
-          python-version: '3.9'
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.9'
 
-      - name: Set up Virtual Environment
-        run: python -m venv .venv
+    - name: Create and activate virtual environment
+      run: |
+        python -m venv venv
+        source venv/bin/activate
 
-      - name: Activate Virtual Environment and Install Dependencies
-        run: |
-          source .venv/bin/activate
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pymysql==1.0.3
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install pymysql
 
-      - name: Verify pymysql Installation
-        run: |
-          source .venv/bin/activate
-          pip show pymysql
-
-      - name: Run Scraper
-        run: |
-          source .venv/bin/activate
-          python scraper.py
+    - name: Run Scraper
+      run: python scraper.py
