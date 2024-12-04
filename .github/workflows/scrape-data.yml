@@ -25,8 +25,11 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install "playwright==1.49.0"
-        python -m playwright install
+
+    - name: Install Playwright
+      run: |
+        python -m pip install playwright
+        python -m playwright install chromium
         python -m playwright install-deps
 
     - name: Verify Playwright Installation
@@ -34,4 +37,7 @@ jobs:
         python -c "from playwright.sync_api import sync_playwright; p = sync_playwright().start(); p.stop()"
 
     - name: Run Scraper
-      run: python scraper.py
+      run: |
+        python scraper.py
+      env:
+        PLAYWRIGHT_BROWSERS_PATH: 0

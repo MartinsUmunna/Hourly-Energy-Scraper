@@ -8,7 +8,7 @@ def scrape_and_process_data(target_date):
 
     try:
         with sync_playwright() as p:
-            browser = p.chromium.launch()
+            browser = p.chromium.launch(headless=True)
             page = browser.new_page()
             page.goto('https://www.niggrid.org/', timeout=120000)
 
