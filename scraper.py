@@ -56,6 +56,8 @@ def scrape_and_process_data(target_date):
             browser.close()
 
         # Convert to DataFrame
+        if headers[0] == '':
+            headers[0] = 'Index'  # Handle potential empty header column
         columns = ['Date'] + headers
         hourly_data_df = pd.DataFrame(all_data, columns=columns)
 
