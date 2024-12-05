@@ -49,7 +49,7 @@ def scrape_and_process_data(target_date):
                 cols = row.query_selector_all('td')
                 if cols:
                     row_data = [col.text_content().strip() for col in cols]
-                    row_data.insert(0, target_date.strftime('%Y-%m-%d'))
+                    row_data.insert(0, target_date.strftime('%Y-%m-%d'))  # Add the Date as the first column
                     all_data.append(row_data)
 
             print(f"Scraped data for {target_date.strftime('%Y-%m-%d')}")
@@ -61,33 +61,35 @@ def scrape_and_process_data(target_date):
 
         print("Starting data processing...")
 
-        # Replace empty strings or whitespace with NaN
-        hourly_data_df = hourly_data_df.replace(r'^\s*$', pd.NA, regex=True)
+        # Validate and clean the DataFrame
+        hourly_data_df = hourly_data_df.replace(r'^\s*$', pd.NA, regex=True)  # Replace empty strings with NaN
+        hourly_data_df = hourly_data_df.dropna(subset=['Genco'])  # Drop rows with missing Genco data
 
-        # Drop rows where 'Genco' is NaN or empty
-        hourly_data_df = hourly_data_df.dropna(subset=['Genco'])
-
-        # Drop the 'TotalGeneration' column if it exists
-        if 'TotalGeneration' in hourly_data_df.columns:
-            hourly_data_df = hourly_data_df.drop('TotalGeneration', axis=1)
-
-        # Drop the '#' column
-        hourly_data_df = hourly_data_df.drop('#', axis=1)
+        # Remove unnecessary columns
+        hourly_data_df = hourly_data_df.drop(columns=['#', 'TotalGeneration'], errors='ignore')
 
         # Rename columns
-        hourly_data_df = hourly_data_df.rename(columns={
-            '24:00': '00:00',
-            'Genco': 'Gencos'
-        })
+        hourly_data_df.rename(columns={'24:00': '00:00', 'Genco': 'Gencos'}, inplace=True)
+
+        # Validate columns for unpivoting
+        hour_columns = [col for col in hourly_data_df.columns if ':' in col]
+        if not hour_columns:
+            raise ValueError("No hourly columns found for unpivoting!")
 
         # Unpivot the DataFrame
         unpivoted_df = pd.melt(
             hourly_data_df,
             id_vars=['Date', 'Gencos'],
+            value_vars=hour_columns,
             var_name='Hour',
             value_name='EnergyGeneratedMWh'
         )
 
+        # Final cleanup
+        unpivoted_df['EnergyGeneratedMWh'] = pd.to_numeric(unpivoted_df['EnergyGeneratedMWh'], errors='coerce')
+        unpivoted_df.dropna(subset=['EnergyGeneratedMWh'], inplace=True)
+
+        print("Data processing completed successfully.")
         return unpivoted_df
 
     except Exception as e:
@@ -138,15 +140,11 @@ def load_to_database(df):
 
 def main():
     try:
-        # Get yesterday's date
         yesterday = datetime.now() - timedelta(days=1)
-
-        # Step 1: Scrape and process the data
         print("Starting ETL process...")
         final_df = scrape_and_process_data(yesterday)
 
         if final_df is not None:
-            # Step 2: Load the data to the database
             load_to_database(final_df)
             print("ETL process completed successfully.")
         else:
